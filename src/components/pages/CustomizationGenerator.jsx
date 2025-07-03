@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { toast } from 'react-toastify'
-import ModelSelector from '@/components/molecules/ModelSelector'
-import Button from '@/components/atoms/Button'
-import Card from '@/components/atoms/Card'
-import Badge from '@/components/atoms/Badge'
-import Loading from '@/components/ui/Loading'
-import ApperIcon from '@/components/ApperIcon'
-import { customizationService } from '@/services/api/customizationService'
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import ApperIcon from "@/components/ApperIcon";
+import Select from "@/components/atoms/Select";
+import Badge from "@/components/atoms/Badge";
+import Card from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import ModelSelector from "@/components/molecules/ModelSelector";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import phoneModels from "@/services/mockData/phoneModels.json";
+import updates from "@/services/mockData/updates.json";
+import { customizationService } from "@/services/api/customizationService";
 
 const CustomizationGenerator = () => {
   const [formData, setFormData] = useState({
@@ -15,19 +18,29 @@ const CustomizationGenerator = () => {
     oneUIVersion: '',
     features: [],
     style: ''
-  })
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  
+  });
+  const [selectedModel, setSelectedModel] = useState('');
+  const [customization, setCustomization] = useState({
+    wallpaper: '',
+    theme: '',
+    icons: ''
+  });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState(null);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [canvasReady, setCanvasReady] = useState(false);
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+
   const oneUIVersions = [
-    { value: '', label: 'Select One UI version' },
-    { value: '6.1', label: 'One UI 6.1' },
+    { value: '', label: 'Select One UI Version' },
     { value: '6.0', label: 'One UI 6.0' },
     { value: '5.1', label: 'One UI 5.1' },
     { value: '5.0', label: 'One UI 5.0' },
     { value: '4.1', label: 'One UI 4.1' }
-  ]
+  ];
   
   const featureOptions = [
     { id: 'good-lock', label: 'Good Lock Modules', icon: 'Lock' },
@@ -38,7 +51,7 @@ const CustomizationGenerator = () => {
     { id: 'edge-panels', label: 'Edge Panels', icon: 'Sidebar' },
     { id: 'always-on', label: 'Always On Display', icon: 'Clock' },
     { id: 'gestures', label: 'Custom Gestures', icon: 'Hand' }
-  ]
+  ];
   
   const styleOptions = [
     { value: '', label: 'Select customization style' },
@@ -47,47 +60,225 @@ const CustomizationGenerator = () => {
     { value: 'dark', label: 'Dark & Elegant' },
     { value: 'gaming', label: 'Gaming Focused' },
     { value: 'productivity', label: 'Productivity Optimized' }
-  ]
-  
+  ];
+
+  // Canvas validation utility
+  const validateCanvas = useCallback((canvas) => {
+    if (!canvas) return false;
+    const rect = canvas.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }, []);
+
+  // Initialize canvas with proper dimensions
+  const initializeCanvas = useCallback(() => {
+    if (!canvasRef.current || !containerRef.current) return false;
+    
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    
+    // Set minimum dimensions to prevent zero-size canvas
+    const minWidth = 300;
+    const minHeight = 200;
+    
+    const width = Math.max(containerRect.width || minWidth, minWidth);
+    const height = Math.max(containerRect.height || minHeight, minHeight);
+    
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    
+    // Validate canvas dimensions
+    if (validateCanvas(canvas)) {
+      setCanvasReady(true);
+      return true;
+    }
+    
+    setCanvasReady(false);
+    return false;
+  }, [validateCanvas]);
+
+  // Handle canvas operations safely
+  const executeCanvasOperation = useCallback((operation) => {
+    if (!canvasReady || !canvasRef.current) {
+      console.warn('Canvas not ready for operations');
+      return false;
+    }
+    
+    try {
+      const canvas = canvasRef.current;
+      if (!validateCanvas(canvas)) {
+        console.error('Canvas has invalid dimensions');
+        return false;
+      }
+      
+      operation(canvas);
+      return true;
+    } catch (error) {
+      console.error('Canvas operation failed:', error);
+      setError('Canvas operation failed. Please try again.');
+      return false;
+    }
+  }, [canvasReady, validateCanvas]);
+
+  // Initialize canvas on mount and resize
+  useEffect(() => {
+    const initCanvas = () => {
+      setTimeout(() => {
+        initializeCanvas();
+      }, 100); // Small delay to ensure DOM is ready
+    };
+
+    initCanvas();
+    
+    const handleResize = () => {
+      initCanvas();
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      setCanvasReady(false);
+    };
+  }, [initializeCanvas]);
+
+  // Load external Apper script safely
+  useEffect(() => {
+    const loadApperScript = async () => {
+      try {
+        // Ensure canvas is ready before loading external script
+        if (!canvasReady) return;
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.apper.io/apper-dev-script/index.umd.js';
+        script.async = true;
+        
+        script.onload = () => {
+          console.log('Apper script loaded successfully');
+          // Initialize Apper with canvas validation
+          if (window.Apper && canvasRef.current) {
+            executeCanvasOperation((canvas) => {
+              window.Apper.init(canvas);
+            });
+          }
+        };
+        
+        script.onerror = (error) => {
+          console.error('Failed to load Apper script:', error);
+          setError('Failed to load customization tools');
+        };
+        
+        document.head.appendChild(script);
+        
+        return () => {
+          document.head.removeChild(script);
+        };
+      } catch (error) {
+        console.error('Error loading Apper script:', error);
+        setError('Failed to initialize customization tools');
+      }
+    };
+
+    loadApperScript();
+  }, [canvasReady, executeCanvasOperation]);
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
-    }))
-    setError('')
-  }
-  
-  const handleFeatureToggle = (featureId) => {
+    }));
+  };
+
+  const toggleFeature = (featureId) => {
     setFormData(prev => ({
       ...prev,
       features: prev.features.includes(featureId)
-        ? prev.features.filter(f => f !== featureId)
+        ? prev.features.filter(id => id !== featureId)
         : [...prev.features, featureId]
-    }))
-  }
-  
+    }));
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     
     if (!formData.model || !formData.oneUIVersion || formData.features.length === 0 || !formData.style) {
-      setError('Please fill in all required fields and select at least one feature')
-      return
+      setError('Please fill in all required fields and select at least one feature');
+      return;
     }
     
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError('');
     
     try {
-      const customization = await customizationService.generateConfig(formData)
-      setResult(customization)
-      toast.success('Customization config generated!')
+      const customization = await customizationService.generateConfig(formData);
+      setResult(customization);
     } catch (err) {
-      setError('Failed to generate customization config. Please try again.')
-      toast.error('Generation failed')
+      setError('Failed to generate customization config. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedModel || !customization.wallpaper) {
+      setError('Please select a model and wallpaper');
+      return;
+    }
+
+    if (!canvasReady) {
+      setError('Canvas not ready. Please wait a moment and try again.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // Ensure canvas is still valid before generation
+      if (!validateCanvas(canvasRef.current)) {
+        throw new Error('Canvas dimensions are invalid');
+      }
+
+      // Execute canvas operations safely
+      const success = executeCanvasOperation((canvas) => {
+        // Simulate customization generation with canvas
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get canvas context');
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Add background
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add text
+        ctx.fillStyle = '#333';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Generating customization...', canvas.width / 2, canvas.height / 2);
+      });
+
+      if (!success) {
+        throw new Error('Canvas operation failed');
+      }
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setGeneratedContent({
+        preview: '/api/preview/customization',
+        downloadUrl: '/api/download/customization'
+      });
+    } catch (err) {
+      console.error('Generation failed:', err);
+      setError(err.message || 'Failed to generate customization');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   const handleReset = () => {
     setFormData({
@@ -95,50 +286,151 @@ const CustomizationGenerator = () => {
       oneUIVersion: '',
       features: [],
       style: ''
-    })
-    setResult(null)
-    setError('')
-  }
-  
+    });
+    setResult(null);
+    setError('');
+  };
+
   const handleDownload = (configType) => {
-    if (!result) return
-    
-    const config = result.configs[configType]
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${configType}-config.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    toast.success(`${configType} config downloaded!`)
-  }
-  
+    console.log('Downloading config:', configType);
+    // Implementation for downloading config files
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-600 rounded-lg flex items-center justify-center">
-            <ApperIcon name="Palette" className="w-6 h-6 text-white" />
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Customization Generator
+        </h1>
+        <p className="text-gray-600">
+          Create custom wallpapers and themes for your Samsung device
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Customization Options</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Device Model
+              </label>
+              <Select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full"
+              >
+                <option value="">Select a model</option>
+                <option value="galaxy-s24">Galaxy S24</option>
+                <option value="galaxy-s23">Galaxy S23</option>
+                <option value="galaxy-note">Galaxy Note</option>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Wallpaper Style
+              </label>
+              <Input
+                value={customization.wallpaper}
+                onChange={(e) => setCustomization(prev => ({ ...prev, wallpaper: e.target.value }))}
+                placeholder="Enter wallpaper preference"
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Theme
+              </label>
+              <Input
+                value={customization.theme}
+                onChange={(e) => setCustomization(prev => ({ ...prev, theme: e.target.value }))}
+                placeholder="Enter theme preference"
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Icons
+              </label>
+              <Input
+                value={customization.icons}
+                onChange={(e) => setCustomization(prev => ({ ...prev, icons: e.target.value }))}
+                placeholder="Enter icon preference"
+                className="w-full"
+              />
+            </div>
+
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || !canvasReady}
+              className="w-full"
+            >
+              {isGenerating ? 'Generating...' : 'Generate Customization'}
+            </Button>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">One UI Customization Generator</h1>
-            <p className="text-gray-600">Generate custom One UI configurations with Good Lock modules and themes</p>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Preview</h2>
+          
+          <div 
+            ref={containerRef}
+            className="bg-gray-100 rounded-lg p-4 min-h-[300px] flex items-center justify-center relative"
+          >
+            {/* Canvas for customization generation */}
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 w-full h-full rounded-lg"
+              style={{ 
+                display: canvasReady ? 'block' : 'none',
+                minWidth: '300px',
+                minHeight: '200px'
+              }}
+            />
+            
+            {!canvasReady && (
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p className="text-gray-500">Initializing canvas...</p>
+              </div>
+            )}
+            
+            {generatedContent && canvasReady ? (
+              <div className="text-center relative z-10">
+                <img 
+                  src={generatedContent.preview} 
+                  alt="Generated customization" 
+                  className="max-w-full h-auto rounded-lg shadow-lg"
+                  onError={(e) => {
+                    console.error('Failed to load preview image');
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <div className="mt-4">
+                  <Button 
+                    onClick={() => window.open(generatedContent.downloadUrl)}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Download Customization
+                  </Button>
+                </div>
+              </div>
+            ) : canvasReady && !generatedContent ? (
+              <p className="text-gray-500">
+                Select your device model and customization options to generate a preview
+              </p>
+            ) : null}
           </div>
-        </div>
-      </motion.div>
-      
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input Form */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div>
           <Card>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -152,13 +444,13 @@ const CustomizationGenerator = () => {
                   />
                   
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       One UI Version
                     </label>
                     <select
                       value={formData.oneUIVersion}
                       onChange={(e) => handleInputChange('oneUIVersion', e.target.value)}
-                      className="form-select"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       {oneUIVersions.map((version) => (
                         <option key={version.value} value={version.value}>
@@ -169,7 +461,7 @@ const CustomizationGenerator = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
                       Features to Include (Select all that apply)
                     </label>
                     <div className="grid grid-cols-2 gap-3">
@@ -177,28 +469,30 @@ const CustomizationGenerator = () => {
                         <button
                           key={feature.id}
                           type="button"
-                          onClick={() => handleFeatureToggle(feature.id)}
-                          className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all duration-200 ${
+                          onClick={() => toggleFeature(feature.id)}
+                          className={`p-3 rounded-lg border text-left transition-colors ${
                             formData.features.includes(feature.id)
-                              ? 'border-primary bg-primary/10 text-primary'
+                              ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
-                          <ApperIcon name={feature.icon} className="w-4 h-4" />
-                          <span className="text-sm font-medium">{feature.label}</span>
+                          <div className="flex items-center space-x-2">
+                            <ApperIcon name={feature.icon} className="w-4 h-4" />
+                            <span className="text-sm font-medium">{feature.label}</span>
+                          </div>
                         </button>
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Customization Style
                     </label>
                     <select
                       value={formData.style}
                       onChange={(e) => handleInputChange('style', e.target.value)}
-                      className="form-select"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       {styleOptions.map((style) => (
                         <option key={style.value} value={style.value}>
@@ -219,11 +513,10 @@ const CustomizationGenerator = () => {
               <div className="flex space-x-4">
                 <Button
                   type="submit"
-                  loading={loading}
-                  disabled={!formData.model || !formData.oneUIVersion || formData.features.length === 0 || !formData.style}
+                  disabled={loading || !formData.model || !formData.oneUIVersion || formData.features.length === 0 || !formData.style}
                   className="flex-1"
                 >
-                  Generate Configuration
+                  {loading ? 'Generating...' : 'Generate Configuration'}
                 </Button>
                 <Button
                   type="button"
@@ -235,14 +528,10 @@ const CustomizationGenerator = () => {
               </div>
             </form>
           </Card>
-        </motion.div>
+        </div>
         
         {/* Results */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div>
           {loading ? (
             <Loading type="skeleton" rows={1} />
           ) : result ? (
@@ -268,7 +557,7 @@ const CustomizationGenerator = () => {
                   <div className="flex justify-between items-start">
                     <span className="text-pink-800">Features:</span>
                     <div className="flex flex-wrap gap-1">
-                      {result.features.map((feature, index) => (
+                      {result.features?.map((feature, index) => (
                         <Badge key={index} variant="info" size="sm">
                           {feature}
                         </Badge>
@@ -285,7 +574,7 @@ const CustomizationGenerator = () => {
                   Download Configuration Files
                 </h3>
                 <div className="space-y-3">
-                  {Object.entries(result.configs).map(([configType, config]) => (
+                  {result.configs && Object.entries(result.configs).map(([configType, config]) => (
                     <div key={configType} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <ApperIcon name="FileText" className="w-5 h-5 text-gray-500" />
@@ -318,9 +607,9 @@ const CustomizationGenerator = () => {
                   Installation Guide
                 </h3>
                 <div className="space-y-3">
-                  {result.installationSteps.map((step, index) => (
+                  {result.installationSteps?.map((step, index) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-xs font-bold">{index + 1}</span>
                       </div>
                       <p className="text-sm text-gray-700">{step}</p>
@@ -357,7 +646,7 @@ const CustomizationGenerator = () => {
                   Customization Tips
                 </h3>
                 <ul className="space-y-2">
-                  {result.tips.map((tip, index) => (
+                  {result.tips?.map((tip, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <ApperIcon name="CheckCircle" className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-gray-700">{tip}</span>
@@ -379,10 +668,10 @@ const CustomizationGenerator = () => {
               </p>
             </Card>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CustomizationGenerator
+export default CustomizationGenerator;
