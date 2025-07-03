@@ -62,44 +62,57 @@ const CustomizationGenerator = () => {
     { value: 'productivity', label: 'Productivity Optimized' }
   ];
 
-  // Canvas validation utility
+// Canvas validation utility - comprehensive dimension checking
   const validateCanvas = useCallback((canvas) => {
     if (!canvas) return false;
+    
+    // Check both getBoundingClientRect and canvas properties
     const rect = canvas.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
+    const hasValidRect = rect.width > 0 && rect.height > 0;
+    const hasValidCanvas = canvas.width > 0 && canvas.height > 0;
+    
+    return hasValidRect && hasValidCanvas;
   }, []);
 
-  // Initialize canvas with proper dimensions
+  // Initialize canvas with proper dimensions and validation
   const initializeCanvas = useCallback(() => {
     if (!canvasRef.current || !containerRef.current) return false;
     
     const canvas = canvasRef.current;
     const container = containerRef.current;
+    
+    // Wait for container to be rendered
     const containerRect = container.getBoundingClientRect();
     
     // Set minimum dimensions to prevent zero-size canvas
     const minWidth = 300;
     const minHeight = 200;
     
+    // Calculate dimensions with fallbacks
     const width = Math.max(containerRect.width || minWidth, minWidth);
     const height = Math.max(containerRect.height || minHeight, minHeight);
     
+    // Set canvas dimensions explicitly
     canvas.width = width;
     canvas.height = height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     
-    // Validate canvas dimensions
-    if (validateCanvas(canvas)) {
+    // Double-check canvas dimensions after setting
+    const finalValidation = validateCanvas(canvas);
+    
+    if (finalValidation) {
+      console.log('Canvas initialized successfully:', { width, height });
       setCanvasReady(true);
       return true;
     }
     
+    console.error('Canvas validation failed after initialization');
     setCanvasReady(false);
     return false;
   }, [validateCanvas]);
 
-  // Handle canvas operations safely
+  // Handle canvas operations safely with comprehensive validation
   const executeCanvasOperation = useCallback((operation) => {
     if (!canvasReady || !canvasRef.current) {
       console.warn('Canvas not ready for operations');
@@ -108,11 +121,18 @@ const CustomizationGenerator = () => {
     
     try {
       const canvas = canvasRef.current;
+      
+      // Validate canvas before operation
       if (!validateCanvas(canvas)) {
-        console.error('Canvas has invalid dimensions');
+        console.error('Canvas has invalid dimensions:', {
+          width: canvas.width,
+          height: canvas.height,
+          rect: canvas.getBoundingClientRect()
+        });
         return false;
       }
       
+      // Execute operation with canvas
       operation(canvas);
       return true;
     } catch (error) {
@@ -123,11 +143,23 @@ const CustomizationGenerator = () => {
   }, [canvasReady, validateCanvas]);
 
   // Initialize canvas on mount and resize
-  useEffect(() => {
+useEffect(() => {
+    let timeoutId;
+    
     const initCanvas = () => {
-      setTimeout(() => {
-        initializeCanvas();
-      }, 100); // Small delay to ensure DOM is ready
+      // Clear any existing timeout
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      // Use longer delay and multiple attempts if needed
+      timeoutId = setTimeout(() => {
+        const success = initializeCanvas();
+        if (!success) {
+          // Retry once more after additional delay
+          timeoutId = setTimeout(() => {
+            initializeCanvas();
+          }, 200);
+        }
+      }, 150); // Increased delay to ensure DOM is ready
     };
 
     initCanvas();
@@ -139,42 +171,80 @@ const CustomizationGenerator = () => {
     window.addEventListener('resize', handleResize);
     
     return () => {
+      if (timeoutId) clearTimeout(timeoutId);
       window.removeEventListener('resize', handleResize);
       setCanvasReady(false);
     };
   }, [initializeCanvas]);
 
   // Load external Apper script safely
-  useEffect(() => {
+useEffect(() => {
+    let scriptElement = null;
+    
     const loadApperScript = async () => {
       try {
-        // Ensure canvas is ready before loading external script
-        if (!canvasReady) return;
+        // Wait for canvas to be ready before loading external script
+        if (!canvasReady) {
+          console.log('Waiting for canvas to be ready...');
+          return;
+        }
 
+        // Check if script already exists
+        const existingScript = document.querySelector('script[src*="apper-dev-script"]');
+        if (existingScript) {
+          console.log('Apper script already loaded');
+          return;
+        }
+
+        console.log('Loading Apper script...');
         const script = document.createElement('script');
-        script.src = 'https://cdn.apper.io/apper-dev-script/index.umd.js';
+        script.src = import.meta.env.VITE_APPER_SDK_CDN_URL || 'https://cdn.apper.io/v1/apper-sdk.v1.js';
         script.async = true;
+        script.crossOrigin = 'anonymous';
+        scriptElement = script;
         
         script.onload = () => {
           console.log('Apper script loaded successfully');
-          // Initialize Apper with canvas validation
-          if (window.Apper && canvasRef.current) {
-            executeCanvasOperation((canvas) => {
-              window.Apper.init(canvas);
-            });
-          }
+          
+          // Wait a bit more to ensure script is fully initialized
+          setTimeout(() => {
+            if (window.Apper && canvasRef.current) {
+              const success = executeCanvasOperation((canvas) => {
+                try {
+                  // Initialize Apper with additional safety checks
+                  console.log('Initializing Apper with canvas:', {
+                    width: canvas.width,
+                    height: canvas.height
+                  });
+                  
+                  window.Apper.init(canvas, {
+                    projectId: import.meta.env.VITE_APPER_PROJECT_ID,
+                    publicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+                  });
+                } catch (initError) {
+                  console.error('Apper initialization error:', initError);
+                  throw initError;
+                }
+              });
+              
+              if (!success) {
+                console.error('Failed to initialize Apper - canvas not ready');
+                setError('Failed to initialize customization tools');
+              }
+            } else {
+              console.error('Apper not available or canvas not ready');
+              setError('Customization tools not available');
+            }
+          }, 100);
         };
         
         script.onerror = (error) => {
           console.error('Failed to load Apper script:', error);
-          setError('Failed to load customization tools');
+          setError('Failed to load customization tools. Please check your internet connection.');
         };
         
         document.head.appendChild(script);
         
-        return () => {
-          document.head.removeChild(script);
-        };
       } catch (error) {
         console.error('Error loading Apper script:', error);
         setError('Failed to initialize customization tools');
@@ -182,6 +252,12 @@ const CustomizationGenerator = () => {
     };
 
     loadApperScript();
+    
+    return () => {
+      if (scriptElement && scriptElement.parentNode) {
+        scriptElement.parentNode.removeChild(scriptElement);
+      }
+    };
   }, [canvasReady, executeCanvasOperation]);
 
   const handleInputChange = (field, value) => {
@@ -377,9 +453,10 @@ const CustomizationGenerator = () => {
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Preview</h2>
           
-          <div 
+<div 
             ref={containerRef}
             className="bg-gray-100 rounded-lg p-4 min-h-[300px] flex items-center justify-center relative"
+            style={{ minWidth: '300px', minHeight: '200px' }}
           >
             {/* Canvas for customization generation */}
             <canvas
@@ -388,14 +465,19 @@ const CustomizationGenerator = () => {
               style={{ 
                 display: canvasReady ? 'block' : 'none',
                 minWidth: '300px',
-                minHeight: '200px'
+                minHeight: '200px',
+                maxWidth: '100%',
+                maxHeight: '100%'
               }}
+              width={300}
+              height={200}
             />
             
             {!canvasReady && (
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 <p className="text-gray-500">Initializing canvas...</p>
+                <p className="text-sm text-gray-400 mt-1">Setting up customization tools...</p>
               </div>
             )}
             
