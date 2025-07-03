@@ -1,0 +1,194 @@
+[
+  {
+    "Id": 1,
+    "name": "Galaxy S24 Ultra",
+    "series": "Galaxy S",
+    "releaseYear": 2024,
+    "specs": {
+      "display": "6.8\" Dynamic AMOLED 2X",
+      "displayScore": 95,
+      "camera": "200MP Main + 50MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 98,
+      "processor": "Snapdragon 8 Gen 3",
+      "battery": "5000mAh",
+      "storage": "256GB/512GB/1TB",
+      "storageScore": 95
+    }
+  },
+  {
+    "Id": 2,
+    "name": "Galaxy S24 Plus",
+    "series": "Galaxy S",
+    "releaseYear": 2024,
+    "specs": {
+      "display": "6.7\" Dynamic AMOLED 2X",
+      "displayScore": 90,
+      "camera": "50MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 88,
+      "processor": "Snapdragon 8 Gen 3",
+      "battery": "4900mAh",
+      "storage": "256GB/512GB",
+      "storageScore": 85
+    }
+  },
+  {
+    "Id": 3,
+    "name": "Galaxy S24",
+    "series": "Galaxy S",
+    "releaseYear": 2024,
+    "specs": {
+      "display": "6.2\" Dynamic AMOLED 2X",
+      "displayScore": 85,
+      "camera": "50MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 85,
+      "processor": "Snapdragon 8 Gen 3",
+      "battery": "4000mAh",
+      "storage": "128GB/256GB",
+      "storageScore": 80
+    }
+  },
+  {
+    "Id": 4,
+    "name": "Galaxy S23 Ultra",
+    "series": "Galaxy S",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.8\" Dynamic AMOLED 2X",
+      "displayScore": 92,
+      "camera": "200MP Main + 10MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 95,
+      "processor": "Snapdragon 8 Gen 2",
+      "battery": "5000mAh",
+      "storage": "256GB/512GB/1TB",
+      "storageScore": 90
+    }
+  },
+  {
+    "Id": 5,
+    "name": "Galaxy S23 Plus",
+    "series": "Galaxy S",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.6\" Dynamic AMOLED 2X",
+      "displayScore": 88,
+      "camera": "50MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 82,
+      "processor": "Snapdragon 8 Gen 2",
+      "battery": "4700mAh",
+      "storage": "256GB/512GB",
+      "storageScore": 82
+    }
+  },
+  {
+    "Id": 6,
+    "name": "Galaxy S23",
+    "series": "Galaxy S",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.1\" Dynamic AMOLED 2X",
+      "displayScore": 82,
+      "camera": "50MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 80,
+      "processor": "Snapdragon 8 Gen 2",
+      "battery": "3900mAh",
+      "storage": "128GB/256GB",
+      "storageScore": 78
+    }
+  },
+  {
+    "Id": 7,
+    "name": "Galaxy Note 20 Ultra",
+    "series": "Galaxy Note",
+    "releaseYear": 2020,
+    "specs": {
+      "display": "6.9\" Dynamic AMOLED 2X",
+      "displayScore": 85,
+      "camera": "108MP Main + 12MP Periscope + 12MP Ultrawide",
+      "cameraScore": 88,
+      "processor": "Snapdragon 865+",
+      "battery": "4500mAh",
+      "storage": "128GB/256GB/512GB",
+      "storageScore": 85
+    }
+  },
+  {
+    "Id": 8,
+    "name": "Galaxy Note 20",
+    "series": "Galaxy Note",
+    "releaseYear": 2020,
+    "specs": {
+      "display": "6.7\" Super AMOLED Plus",
+      "displayScore": 78,
+      "camera": "64MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 75,
+      "processor": "Snapdragon 865+",
+      "battery": "4300mAh",
+      "storage": "128GB/256GB",
+      "storageScore": 75
+    }
+  },
+  {
+    "Id": 9,
+    "name": "Galaxy A54",
+    "series": "Galaxy A",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.4\" Super AMOLED",
+      "displayScore": 75,
+      "camera": "50MP Main + 12MP Ultrawide + 5MP Macro",
+      "cameraScore": 72,
+      "processor": "Exynos 1380",
+      "battery": "5000mAh",
+      "storage": "128GB/256GB",
+      "storageScore": 70
+    }
+  },
+  {
+    "Id": 10,
+    "name": "Galaxy A34",
+    "series": "Galaxy A",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.6\" Super AMOLED",
+      "displayScore": 72,
+      "camera": "48MP Main + 8MP Ultrawide + 5MP Macro",
+      "cameraScore": 68,
+      "processor": "MediaTek Dimensity 1080",
+      "battery": "5000mAh",
+      "storage": "128GB/256GB",
+      "storageScore": 68
+    }
+  },
+  {
+    "Id": 11,
+    "name": "Galaxy Z Fold 5",
+    "series": "Galaxy Z",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "7.6\" Dynamic AMOLED 2X Foldable",
+      "displayScore": 98,
+      "camera": "50MP Main + 12MP Telephoto + 12MP Ultrawide",
+      "cameraScore": 85,
+      "processor": "Snapdragon 8 Gen 2",
+      "battery": "4400mAh",
+      "storage": "256GB/512GB/1TB",
+      "storageScore": 88
+    }
+  },
+  {
+    "Id": 12,
+    "name": "Galaxy Z Flip 5",
+    "series": "Galaxy Z",
+    "releaseYear": 2023,
+    "specs": {
+      "display": "6.7\" Dynamic AMOLED 2X Foldable",
+      "displayScore": 88,
+      "camera": "12MP Main + 12MP Ultrawide",
+      "cameraScore": 75,
+      "processor": "Snapdragon 8 Gen 2",
+      "battery": "3700mAh",
+      "storage": "256GB/512GB",
+      "storageScore": 75
+    }
+  }
+]

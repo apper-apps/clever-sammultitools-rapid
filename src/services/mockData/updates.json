@@ -1,0 +1,231 @@
+[
+  {
+    "Id": 1,
+    "model": "Galaxy S24 Ultra",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-02-15",
+    "size": "2.8 GB",
+    "description": "Major update with AI features, enhanced camera capabilities, and improved performance optimizations.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "Live Translate",
+      "Chat Assist",
+      "Photo Assist"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/s24ultra-6.1"
+  },
+  {
+    "Id": 2,
+    "model": "Galaxy S24 Plus",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-02-15",
+    "size": "2.6 GB",
+    "description": "Major update bringing Galaxy AI features and enhanced user experience improvements.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "Live Translate",
+      "Enhanced Camera"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/s24plus-6.1"
+  },
+  {
+    "Id": 3,
+    "model": "Galaxy S24",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-02-15",
+    "size": "2.4 GB",
+    "description": "Major update with Galaxy AI integration and improved system performance.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "Live Translate",
+      "Performance Boost"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/s24-6.1"
+  },
+  {
+    "Id": 4,
+    "model": "Galaxy S23 Ultra",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "rolling",
+    "releaseDate": "2024-03-01",
+    "size": "2.5 GB",
+    "description": "Galaxy AI features coming to Galaxy S23 Ultra with enhanced S Pen functionality.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "Enhanced S Pen",
+      "Camera Improvements"
+    ],
+    "regions": ["Global", "USA", "Europe"],
+    "changelogUrl": "https://example.com/changelog/s23ultra-6.1"
+  },
+  {
+    "Id": 5,
+    "model": "Galaxy S23 Plus",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "rolling",
+    "releaseDate": "2024-03-01",
+    "size": "2.3 GB",
+    "description": "Galaxy AI features and system optimizations for Galaxy S23 Plus.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "System Optimization",
+      "Battery Improvements"
+    ],
+    "regions": ["Global", "USA", "Europe"],
+    "changelogUrl": "https://example.com/changelog/s23plus-6.1"
+  },
+  {
+    "Id": 6,
+    "model": "Galaxy S23",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "rolling",
+    "releaseDate": "2024-03-01",
+    "size": "2.2 GB",
+    "description": "Galaxy AI integration and performance enhancements for Galaxy S23.",
+    "features": [
+      "Galaxy AI",
+      "Circle to Search",
+      "Performance Boost",
+      "UI Improvements"
+    ],
+    "regions": ["Global", "USA", "Europe"],
+    "changelogUrl": "https://example.com/changelog/s23-6.1"
+  },
+  {
+    "Id": 7,
+    "model": "Galaxy A54",
+    "version": "One UI 6.0",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-01-20",
+    "size": "2.1 GB",
+    "description": "Android 14 with One UI 6.0 bringing new features and improved performance.",
+    "features": [
+      "Android 14",
+      "Privacy Dashboard",
+      "Material You",
+      "Battery Optimization"
+    ],
+    "regions": ["Global", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/a54-6.0"
+  },
+  {
+    "Id": 8,
+    "model": "Galaxy Z Fold 5",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-02-20",
+    "size": "2.9 GB",
+    "description": "Galaxy AI features optimized for foldable displays with enhanced multitasking.",
+    "features": [
+      "Galaxy AI",
+      "Foldable Optimization",
+      "Multi-Window Enhanced",
+      "Flex Mode Updates"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/zfold5-6.1"
+  },
+  {
+    "Id": 9,
+    "model": "Galaxy Z Flip 5",
+    "version": "One UI 6.1",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "available",
+    "releaseDate": "2024-02-20",
+    "size": "2.7 GB",
+    "description": "Galaxy AI features with enhanced cover screen functionality and camera improvements.",
+    "features": [
+      "Galaxy AI",
+      "Cover Screen Enhanced",
+      "Camera Improvements",
+      "Flex Mode Updates"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/zflip5-6.1"
+  },
+  {
+    "Id": 10,
+    "model": "Galaxy S24 Ultra",
+    "version": "January 2024 Security Patch",
+    "androidVersion": "Android 14",
+    "type": "security",
+    "status": "available",
+    "releaseDate": "2024-01-10",
+    "size": "450 MB",
+    "description": "Monthly security patch with bug fixes and system stability improvements.",
+    "features": [
+      "Security Patch Level: January 2024",
+      "Bug Fixes",
+      "System Stability",
+      "Performance Optimization"
+    ],
+    "regions": ["Global", "USA", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/s24ultra-jan2024"
+  },
+  {
+    "Id": 11,
+    "model": "Galaxy Note 20 Ultra",
+    "version": "One UI 5.1",
+    "androidVersion": "Android 13",
+    "type": "feature",
+    "status": "paused",
+    "releaseDate": "2023-12-15",
+    "size": "1.8 GB",
+    "description": "Feature update with enhanced S Pen functionality and camera improvements.",
+    "features": [
+      "Enhanced S Pen",
+      "Camera Pro Mode",
+      "Battery Optimization",
+      "UI Refinements"
+    ],
+    "regions": ["Global", "Europe"],
+    "changelogUrl": "https://example.com/changelog/note20ultra-5.1"
+  },
+  {
+    "Id": 12,
+    "model": "Galaxy A34",
+    "version": "One UI 6.0",
+    "androidVersion": "Android 14",
+    "type": "major",
+    "status": "rolling",
+    "releaseDate": "2024-02-01",
+    "size": "2.0 GB",
+    "description": "Android 14 with One UI 6.0 bringing improved user experience and privacy features.",
+    "features": [
+      "Android 14",
+      "Privacy Dashboard",
+      "Material You",
+      "Performance Boost"
+    ],
+    "regions": ["Global", "Europe", "Asia"],
+    "changelogUrl": "https://example.com/changelog/a34-6.0"
+  }
+]
