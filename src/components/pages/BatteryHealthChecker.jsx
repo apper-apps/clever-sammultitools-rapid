@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { toast } from 'react-toastify'
-import ModelSelector from '@/components/molecules/ModelSelector'
-import ResultCard from '@/components/molecules/ResultCard'
-import Button from '@/components/atoms/Button'
-import Input from '@/components/atoms/Input'
-import Select from '@/components/atoms/Select'
-import Card from '@/components/atoms/Card'
-import Badge from '@/components/atoms/Badge'
-import Loading from '@/components/ui/Loading'
-import ApperIcon from '@/components/ApperIcon'
-import { batteryService } from '@/services/api/batteryService'
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Select from "@/components/atoms/Select";
+import Badge from "@/components/atoms/Badge";
+import Card from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import ModelSelector from "@/components/molecules/ModelSelector";
+import ResultCard from "@/components/molecules/ResultCard";
+import Loading from "@/components/ui/Loading";
+import { batteryService } from "@/services/api/batteryService";
 
 const BatteryHealthChecker = () => {
   const [formData, setFormData] = useState({
@@ -281,20 +281,20 @@ const BatteryHealthChecker = () => {
                 <p className="text-blue-800 text-sm">
                   <strong>Note:</strong> This analysis is based on usage patterns and age. 
                   For accurate battery health, use Samsung Members app or visit a Samsung service center.
-                </p>
+</p>
               </div>
             </div>
           ) : (
-            <Card className="text-center py-12">
-              <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ApperIcon name="Battery" className="w-8 h-8 text-gray-400" />
+            <Card>
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ApperIcon name="Battery" className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Ready to Analyze</h3>
+                <p className="text-gray-600">
+                  Provide your device information to get an AI-powered battery health analysis.
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Ready to Analyze
-              </h3>
-              <p className="text-gray-600">
-                Provide your device information to get an AI-powered battery health analysis.
-              </p>
             </Card>
           )}
         </motion.div>
